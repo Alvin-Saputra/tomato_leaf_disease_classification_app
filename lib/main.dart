@@ -1,7 +1,14 @@
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:leaf_disease_classification_app/view/screens/home_screen.dart';
 import 'package:leaf_disease_classification_app/view/screens/leaf_disease_list_screen.dart';
 
-void main() {
+  late CameraDescription firstCamera;
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final cameras = await availableCameras();
+  firstCamera = cameras.first;
   runApp(const MyApp());
 }
 
@@ -20,7 +27,7 @@ class MyApp extends StatelessWidget {
           foregroundColor: Colors.white,
         ),
       ),
-      home: LeafDiseaseListScreen(),
+      home: HomeScreen(camera: firstCamera),
     );
   }
 }
