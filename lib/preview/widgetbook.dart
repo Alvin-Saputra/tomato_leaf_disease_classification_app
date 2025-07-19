@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:leaf_disease_classification_app/view/components/card_item.dart';
 import 'package:leaf_disease_classification_app/view/components/result_card.dart';
-import 'package:leaf_disease_classification_app/view/models/leaf.dart';
+import 'package:leaf_disease_classification_app/models/leaf.dart';
 import 'package:leaf_disease_classification_app/view/screens/leaf_disease_list_screen.dart';
 import 'package:widgetbook/widgetbook.dart';
 

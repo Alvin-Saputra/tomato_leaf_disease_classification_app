@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:leaf_disease_classification_app/view/components/card_item.dart';
-import 'package:leaf_disease_classification_app/view/models/leaf.dart';
+import 'package:leaf_disease_classification_app/models/leaf.dart';
 
 class LeafDiseaseListScreen extends StatelessWidget {
   LeafDiseaseListScreen({super.key});

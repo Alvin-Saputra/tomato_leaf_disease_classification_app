@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:leaf_disease_classification_app/view/models/leaf.dart';
+import 'package:leaf_disease_classification_app/models/leaf.dart';
 
 class CardItem extends StatelessWidget {
   CardItem({required this.leafData,super.key});
