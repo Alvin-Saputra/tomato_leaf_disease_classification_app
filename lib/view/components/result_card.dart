@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:leaf_disease_classification_app/models/leaf.dart';
+import 'package:leaf_disease_classification_app/view/components/carousel_widget.dart';
+import 'package:leaf_disease_classification_app/view/screens/detail_screen.dart';
 
 class ResultCard extends StatelessWidget {
-  const ResultCard({super.key});
+  ResultCard(this.leafDiseaseData, {super.key});
+
+  LeafDisease leafDiseaseData;
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +17,7 @@ class ResultCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset("assets/images/plant.png", height: 75, width: 75),
+            Image.asset(leafDiseaseData.imageAsset[0], height: 75, width: 75),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Column(
@@ -20,14 +25,21 @@ class ResultCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text("Disease", style: TextStyle(fontSize: 12)),
-                  Text("Curly Yellow"),
+                  Text(leafDiseaseData.name),
                 ],
               ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: ElevatedButton.icon(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DetailScreen(leafDiseaseData),
+                  ),
+                  );
+                },
                 label: Icon(Icons.arrow_forward),
               ),
             ),

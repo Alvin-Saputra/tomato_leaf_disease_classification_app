@@ -42,6 +42,7 @@ dependencies:
   image_cropper: ^9.1.0
   http: ^1.4.0
   image_picker: ^1.1.2
+  carousel_slider: ^5.1.1
 
 dev_dependencies:
   flutter_test:
@@ -67,6 +68,15 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    - assets/images/bacterial_spot/
+    - assets/images/healthy/
+    - assets/images/early_late_blight/
+    - assets/images/leaf_mold/
+    - assets/images/mosaic_virus/
+    - assets/images/septoria_leaf_spot/
+    - assets/images/spider_mites/
+    - assets/images/target_spot/
+    - assets/images/yellow_leaf_curl_virus/
     - assets/images/plant.png
     - assets/animation/Scanner.json
     - assets/models/labels.txt

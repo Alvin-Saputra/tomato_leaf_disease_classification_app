@@ -2,9 +2,11 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:leaf_disease_classification_app/models/leaf.dart';
 import 'package:leaf_disease_classification_app/models/local/classification_helper.dart';
 import 'package:leaf_disease_classification_app/models/remote/remote_classification_helper.dart';
 import 'package:leaf_disease_classification_app/utils/image_cropper_utils.dart';
+import 'package:leaf_disease_classification_app/utils/show_message_helper.dart';
 import 'package:leaf_disease_classification_app/view/components/result_card.dart';
 import 'package:lottie/lottie.dart';
 import 'package:image_picker/image_picker.dart';
@@ -21,6 +23,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late CameraController _controller;
   late Future<void> _initializeControllerFuture;
+  LeafDisease? predictionResult;
   bool _isProcessing = false;
 
   @override
@@ -39,70 +42,34 @@ class _HomeScreenState extends State<HomeScreen> {
     _initializeControllerFuture = _controller.initialize();
   }
 
-  // Future<String> takePhotoAndClassify() async {
-  //   final XFile? image = await _controller!.takePicture();
-  //   var result = "";
-  //   if (image == null) {
-  //     return "";
-  //   } else {
-  //     File? croppedImage = await cropImage(File(image!.path));
-  //     if (croppedImage == null) {
-  //       return "";
-  //     } else {
-  //       result = await RemoteClassificationHelper().classifyImage(croppedImage);
-  //       return result;
-  //     }
-  //   }
-  // }
-
-  // Future<String> takePhotoAndClassify() async {
-  //   final XFile? image = await _controller!.takePicture();
-  //   var result = "";
-
-  //   File? croppedImage = await cropImage(File(image!.path));
-  //   result = await RemoteClassificationHelper().classifyImage(croppedImage!);
-  //   return result;
-  // }
-
-  Future<String> takePhotoAndClassify() async {
+  Future<void> takePhotoAndClassify() async {
     // Cegah multiple calls
     if (_isProcessing) {
-      return "";
+      return;
     }
 
     setState(() {
       _isProcessing = true;
     });
 
+    final XFile? image = await _controller.takePicture();
+
+    if (image == null) {
+      return;
+    }
+
+    File? croppedImage = await cropImage(File(image.path));
+    if (croppedImage == null) {
+      return;
+    }
+
     try {
-      final XFile? image = await _controller.takePicture();
-
-      if (image == null) {
-        return "";
-      }
-
-      // Tambahkan try-catch untuk proses cropping
-      try {
-        File? croppedImage = await cropImage(File(image.path));
-        if (croppedImage == null) {
-          return "";
-        }
-
-        String result = await RemoteClassificationHelper().classifyImage(
-          croppedImage,
-        );
-        return result;
-      } catch (e) {
-        print("Error during cropping: $e");
-        // Jika cropping gagal, gunakan gambar asli
-        String result = await RemoteClassificationHelper().classifyImage(
-          File(image.path),
-        );
-        return result;
-      }
+      String result = await RemoteClassificationHelper().classifyImage(
+        croppedImage,
+      );
+      predictionResult = await getLeafDiseaseData(result);
     } catch (e) {
-      print("Error taking photo: $e");
-      return "";
+      showMessage(context, e.toString());
     } finally {
       setState(() {
         _isProcessing = false;
@@ -111,6 +78,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> pickFromGallery() async {
+    late String result;
+
+    if (_isProcessing) {
+      return;
+    }
+    setState(() {
+      _isProcessing = true;
+    });
+
     final XFile? image = await ImagePicker().pickImage(
       source: ImageSource.gallery,
     );
@@ -119,10 +95,31 @@ class _HomeScreenState extends State<HomeScreen> {
     File? croppedImage = await cropImage(File(image.path));
     if (croppedImage == null) return;
 
-    String result = await RemoteClassificationHelper().classifyImage(
-      croppedImage,
-    );
+    try {
+      result = await RemoteClassificationHelper().classifyImage(croppedImage);
+      predictionResult = await getLeafDiseaseData(result);
+    } catch (e) {
+      showMessage(context, e.toString());
+    } finally {
+      _isProcessing = false;
+      setState(() {});
+    }
+
     print("result: $result");
+  }
+
+  Future<LeafDisease> getLeafDiseaseData(String predictionResult) async {
+    LeafDisease? matchedDisease = listLeafDisease.firstWhere(
+      (disease) => disease.id == predictionResult,
+      orElse: () => LeafDisease(
+        id: 'unknown',
+        name: 'Unknown Disease',
+        scientificName: '',
+        description: 'Tidak ditemukan data penyakit untuk hasil prediksi ini.',
+        imageAsset: [],
+      ),
+    );
+    return matchedDisease;
   }
 
   @override
@@ -143,13 +140,6 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               // Camera preview sebagai background (layer paling bawah)
               Positioned.fill(child: CameraPreview(_controller)),
-
-              // Result card di atas camera preview
-              // Positioned(
-              //   bottom: 20, // Jarak dari bawah layar
-              //   left: 40,
-              //   child: ResultCard(),
-              // ),
               Align(
                 alignment: Alignment.center,
                 child: Lottie.asset("assets/animation/Scanner.json"),
@@ -162,7 +152,21 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      ResultCard(),
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 500),
+                        transitionBuilder:
+                            (Widget child, Animation<double> animation) {
+                              return ScaleTransition(
+                                scale: animation,
+                                child: child,
+                              );
+                            },
+                        child: (predictionResult != null)
+                            ? (_isProcessing == true)
+                                  ? ResultCard(predictionResult!)
+                                  : Card(child: CircularProgressIndicator())
+                            : SizedBox.shrink(),
+                      ),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 24.0),
                         child: Row(
