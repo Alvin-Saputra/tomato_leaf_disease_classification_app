@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 
 class RemoteClassificationHelper {
   final Uri endpoint = Uri.parse("http://10.0.2.2:5000/classify-image");
+  // final Uri endpoint = Uri.parse("https://2d02350ac173.ngrok-free.app/classify-image");
 
   Future<String> classifyImage(File image) async {
     // Buat multipart request
@@ -19,7 +20,7 @@ class RemoteClassificationHelper {
     );
 
     // Kirim request
-    var streamedResponse = await request.send();
+     var streamedResponse = await request.send().timeout(const Duration(seconds: 120));
 
     // Ambil response dari stream
     var response = await http.Response.fromStream(streamedResponse);

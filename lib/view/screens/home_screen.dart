@@ -8,6 +8,7 @@ import 'package:leaf_disease_classification_app/models/remote/remote_classificat
 import 'package:leaf_disease_classification_app/utils/image_cropper_utils.dart';
 import 'package:leaf_disease_classification_app/utils/show_message_helper.dart';
 import 'package:leaf_disease_classification_app/view/components/result_card.dart';
+import 'package:leaf_disease_classification_app/view/components/result_loading_card.dart';
 import 'package:lottie/lottie.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -55,11 +56,17 @@ class _HomeScreenState extends State<HomeScreen> {
     final XFile? image = await _controller.takePicture();
 
     if (image == null) {
+      setState(() {
+        _isProcessing = false;
+      });
       return;
     }
 
     File? croppedImage = await cropImage(File(image.path));
     if (croppedImage == null) {
+      setState(() {
+        _isProcessing = false;
+      });
       return;
     }
 
@@ -90,10 +97,20 @@ class _HomeScreenState extends State<HomeScreen> {
     final XFile? image = await ImagePicker().pickImage(
       source: ImageSource.gallery,
     );
-    if (image == null) return;
+    if (image == null) {
+      setState(() {
+        _isProcessing = false;
+      });
+      return;
+    }
 
     File? croppedImage = await cropImage(File(image.path));
-    if (croppedImage == null) return;
+    if (croppedImage == null) {
+      setState(() {
+        _isProcessing = false;
+      });
+      return;
+    }
 
     try {
       result = await RemoteClassificationHelper().classifyImage(croppedImage);
@@ -101,8 +118,9 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       showMessage(context, e.toString());
     } finally {
-      _isProcessing = false;
-      setState(() {});
+      setState(() {
+        _isProcessing = false;
+      });
     }
 
     print("result: $result");
@@ -161,11 +179,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: child,
                               );
                             },
-                        child: (predictionResult != null)
-                            ? (_isProcessing == true)
-                                  ? ResultCard(predictionResult!)
-                                  : Card(child: CircularProgressIndicator())
-                            : SizedBox.shrink(),
+                        child: _isProcessing
+                            ? ResultLoadinCard()
+                            : (predictionResult != null)
+                            ? ResultCard(
+                                key: ValueKey('result'),
+                                predictionResult!,
+                              )
+                            : SizedBox.shrink(key: ValueKey('empty')),
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 24.0),

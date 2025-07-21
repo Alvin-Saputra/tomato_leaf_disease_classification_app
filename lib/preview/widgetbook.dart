@@ -3,6 +3,7 @@ import 'package:leaf_disease_classification_app/view/components/card_item.dart';
 import 'package:leaf_disease_classification_app/view/components/carousel_widget.dart';
 import 'package:leaf_disease_classification_app/view/components/result_card.dart';
 import 'package:leaf_disease_classification_app/models/leaf.dart';
+import 'package:leaf_disease_classification_app/view/components/result_loading_card.dart';
 import 'package:leaf_disease_classification_app/view/screens/detail_screen.dart';
 import 'package:leaf_disease_classification_app/view/screens/leaf_disease_list_screen.dart';
 import 'package:widgetbook/widgetbook.dart';
@@ -102,6 +103,17 @@ class HotReload extends StatelessWidget {
               name: 'Detail Screen',
               builder: (context) => Center(
                 child: DetailScreen(leafData)
+              ),
+            ),
+          ],
+        ),
+         WidgetbookComponent(
+          name: 'Result Loading Card',
+          useCases: [
+            WidgetbookUseCase(
+              name: 'Result Loading Card',
+              builder: (context) => Center(
+                child: ResultLoadinCard()
               ),
             ),
           ],
