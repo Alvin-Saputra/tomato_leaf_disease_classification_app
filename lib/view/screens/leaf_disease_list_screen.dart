@@ -10,7 +10,7 @@ class LeafDiseaseListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("LeafDisease"),),
+      appBar: AppBar(title: Text("List of Leaf Disease"),),
       body: ListView.builder(
         itemCount: leafDiseaseData.length,
         itemBuilder: (context, index) {
